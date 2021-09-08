@@ -1,0 +1,44 @@
+version: "3.2"
+
+services:
+  api:
+    build:
+      context: "../."
+      dockerfile: docker/api/Dockerfile.dev
+    image: ziegler-exercise-api
+    environment:
+      - NODE_ENV=development
+    restart: on-failure
+    volumes:
+      - ./../api:/app
+      - ./tmp:/tmp
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ../.
+      dockerfile: docker/frontend/Dockerfile.dev
+    image: ziegler-exercise-frontend
+    environment:
+      - NODE_ENV=development
+    restart: on-failure
+    volumes:
+      - /app/node_modules # prefer container's node_modules instead of volume-mounted ones
+      - ./../frontend:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  server:
+    build:
+      context: "../."
+      dockerfile: docker/server/Dockerfile
+    image: ziegler-exercise-server
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    depends_on:
+      - frontend
+      - api
