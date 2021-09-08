@@ -32,3 +32,4 @@ Every recipe should contain picture, name, ingredients, total cook time and sour
 There should be also the possibility to filter recipes by ingredients type (multi select), ingredients (multi select - it should contain only results corresponding to the previous selection) and total cook time.
 - Extended view of selected recipe containing all of the data in readable way.
 
+4. Please fork this repo and commit at every important step, git history is also important for us. When you will be finished, create a PR with your implementation and contact us.
