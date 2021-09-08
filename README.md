@@ -4,9 +4,10 @@
 2. `make dev-start`
 
 It requires you to install Docker on your machine.
-It provides API (Node.js / Express) with auto reload on file edit and Frontend (Create-React-App) with hot-module-reload.
-This is a good starting point to work with a new project.
 
+It provides **API** (Node.js / Express) with auto reload on file edit and **Frontend** (Create-React-App) with hot-module-reload.
+This is a good starting point to work with a new project.
+Example API endpoint and API call from frontend is also provided.
 
 ## Exercise
 
