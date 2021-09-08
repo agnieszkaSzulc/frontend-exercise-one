@@ -5,13 +5,13 @@
 
 It requires you to install Docker on your machine.
 
-It provides **API** (Node.js / Express) with auto reload on file edit and **Frontend** (Create-React-App) with hot-module-reload.
-This is a good starting point to work with a new project.
-Example API endpoint and API call from frontend is also provided.
+It provides **API** (Node.js / Express in `api/` directory) with auto reload on file edit and **Frontend** (Create-React-App in `frontend/` directory) with hot-module-reload.
+This is a good starting point for a new project.
+Example API endpoint & API call from frontend is also provided in code.
 
 ## Exercise
 
-Example data
+Example data to use
 https://raw.githubusercontent.com/raywenderlich/recipes/master/Recipes.json
 
 1. Normalize data, add ids etc.
@@ -31,3 +31,4 @@ The UI should contain two views:
 Every recipe should contain picture, name, ingredients, total cook time and source url.
 There should be also the possibility to filter recipes by ingredients type (multi select), ingredients (multi select - it should contain only results corresponding to the previous selection) and total cook time.
 - Extended view of selected recipe containing all of the data in readable way.
+
