@@ -7,6 +7,6 @@ export function getRecipes(params, callback) {
         params: params
     })
     .then(response => {
-        callback(response.data.recipes)
+        callback(response.data)
     });
 }
