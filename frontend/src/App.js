@@ -1,35 +1,29 @@
-import React, { useState, useEffect } from "react";
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route
+} from "react-router-dom";
+import {ChakraProvider} from "@chakra-ui/react";
+import Recipes from "./components/Recipes/Recipes";
+import Recipe from "./components/Recipes/Recipe";
 
 function App() {
-  const [responseText, setResponseText] = useState("");
-  useEffect(() => {
-    // Example fetch to API
-    fetch("/api/test").then(res => res.json()).then(json => setResponseText(json.text));
-  }, []);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        <p>
-          Response text: {responseText}
-        </p>
-      </header>
-    </div>
+          <ChakraProvider>
+              <Router>
+                  <Switch>
+                      <Route exact path="/">
+                          <Recipes />
+                      </Route>
+                      <Route path="/recipe/:name">
+                          <Recipe />
+                      </Route>
+                  </Switch>
+              </Router>
+          </ChakraProvider>
   );
 }
+
 
 export default App;
