@@ -1,12 +1,12 @@
-import cors from "cors"
-import express from "express"
-import {recipes} from "./sample_data.js"
+import cors from "cors";
+import express from "express";
+import { recipes } from "./sample_data.js";
 const app = express();
 
 const corsOptions = {
   origin: "*",
   credentials: true, //access-control-allow-credentials:true
-  optionSuccessStatus: 200,
+  optionSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
@@ -14,28 +14,68 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+const RECIPES_PER_PAGE = 3;
+
 app.get("/ingredients", (req, res) => {
-  const unique_ingredients = [...new Set(recipes.flatMap(recipe => recipe.ingredients.map(ingredient => ingredient.name.trim())))].sort()
-  res.json(unique_ingredients);
+  const uniqueIngredients = [
+    ...new Set(
+      recipes.flatMap(recipe =>
+        recipe.ingredients.map(ingredient => ingredient.name.trim())
+      )
+    )
+  ].sort();
+  res.json(uniqueIngredients);
 });
 
 app.get("/ingredient_types", (req, res) => {
-  const unique_ingredient_types = [...new Set(recipes.flatMap(recipe => recipe.ingredients.map(ingredient => ingredient.type)))].sort()
-  res.json(unique_ingredient_types);
+  const uniqueIngredientTypes = [
+    ...new Set(
+      recipes.flatMap(recipe =>
+        recipe.ingredients.map(ingredient => ingredient.type)
+      )
+    )
+  ].sort();
+  res.json(uniqueIngredientTypes);
 });
 
 app.get("/recipes", (req, res) => {
-  let result = recipes
-  const pageCount = Math.ceil(result.length / 3);
+  let result = recipes;
+  if (req.query.ingredients) {
+    result = result.filter(recipe =>
+      recipe.ingredients
+        .map(i => i.name)
+        .some(i => req.query.ingredients.includes(i))
+    );
+  }
+  if (req.query.ingredientTypes) {
+    result = result.filter(recipe =>
+      recipe.ingredients
+        .map(i => i.type)
+        .some(i => req.query.ingredientTypes.includes(i))
+    );
+  }
+  if (req.query.cookTime > 0) {
+    result = result.filter(
+      recipe => recipe.timers.reduce((a, b) => a + b, 0) <= req.query.cookTime
+    );
+  }
+
+  const pageCount = Math.ceil(result.length / RECIPES_PER_PAGE);
   let page = parseInt(req.query.page);
-  if (!page) { page = 1;}
+  if (!page) {
+    page = 1;
+  }
   if (page > pageCount) {
-      page = pageCount
+    page = pageCount;
   }
 
   res.json({
-    "pageCount": pageCount,
-    "recipes": result.slice(page * 3 - 3, page * 3)
+    pageCount: pageCount,
+    totalRecipes: result.length,
+    recipes: result.slice(
+      page * RECIPES_PER_PAGE - RECIPES_PER_PAGE,
+      page * RECIPES_PER_PAGE
+    )
   });
 });
 
