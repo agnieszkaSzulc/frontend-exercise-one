@@ -1,24 +1,34 @@
-import React, { useEffect, useState } from "react";
-import { useHistory } from "react-router-dom/cjs/react-router-dom";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
+  Flex,
   Grid,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInput,
   NumberInputField,
-  NumberInputStepper
+  NumberInputStepper,
+  Spinner
 } from "@chakra-ui/react";
 import Select from "react-select";
 import useInfiniteScroll from "../../hooks/useInfiniteScroll";
 import { getIngredients, getIngredientTypes, getRecipes } from "./RecipesApi";
+import RecipeTile from "./RecipeTile";
 
 export default function Recipes() {
-  let history = useHistory();
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState();
   const [totalRecipes, setTotalRecipes] = useState();
-  const [isFetching, setIsFetching] = useInfiniteScroll(fetchRecipes);
+
+  const loadRecipes = useCallback(() => {
+    setTimeout(() => {
+      if (page < pageCount) {
+        setPage(page + 1);
+      }
+    }, 1000);
+  }, [page, pageCount]);
+
+  const [isFetching, setIsFetching] = useInfiniteScroll(loadRecipes);
   const [ingredients, setIngredients] = useState(() =>
     getIngredients(response => setIngredients(response))
   );
@@ -30,40 +40,43 @@ export default function Recipes() {
   const [cookTime, setCookTime] = useState();
   const [recipes, setRecipes] = useState([]);
 
-  const params = {
-    page: page,
-    ingredients: selectedIngredients.map(i => i.value),
-    ingredientTypes: selectedIngredientTypes.map(t => t.value),
-    cookTime: cookTime
-  };
+  const params = useMemo(() => {
+    return {
+      page: page,
+      ingredients: selectedIngredients.map(i => i.value),
+      ingredientTypes: selectedIngredientTypes.map(t => t.value),
+      cookTime: cookTime
+    };
+  }, [page, selectedIngredients, selectedIngredientTypes, cookTime]);
 
   useEffect(() => {
-    getRecipes(params, response => {
+    fetchRecipes(params, response => {
+      setPageCount(response.pageCount);
+      setTotalRecipes(response.totalRecipes);
+    });
+  }, [params]);
+
+  useEffect(() => {
+    fetchRecipes(params, response => {
       setRecipes(previousData =>
         recipes?.length >= totalRecipes
           ? response.recipes
           : [...previousData, ...response.recipes]
       );
-      setPageCount(response.pageCount);
-      setTotalRecipes(response.totalRecipes);
     });
     setIsFetching(false);
-  }, [page]);
+  }, [page, params, setIsFetching]);
 
   useEffect(() => {
-    getRecipes({ ...params, page: 1 }, response => {
+    fetchRecipes({ ...params, page: 1 }, response => {
       setRecipes(response.recipes);
       setTotalRecipes(response.totalRecipes);
     });
     setPage(1);
   }, [selectedIngredients, selectedIngredientTypes, cookTime]);
 
-  function fetchRecipes() {
-    setTimeout(() => {
-      if (page < pageCount) {
-        setPage(page + 1);
-      }
-    }, 1000);
+  function fetchRecipes(parameters, callback) {
+    getRecipes({ ...parameters }, response => callback(response));
   }
 
   return (
@@ -73,6 +86,7 @@ export default function Recipes() {
           <Select
             value={selectedIngredients}
             isMulti
+            placeholder="Select ingredients"
             onChange={setSelectedIngredients}
             options={ingredients?.map(ingredient => {
               let option = {};
@@ -86,6 +100,7 @@ export default function Recipes() {
           <Select
             value={selectedIngredientTypes}
             isMulti
+            placeholder="Select ingredients types"
             onChange={setSelectedIngredientTypes}
             options={ingredientTypes?.map(type => {
               let option = {};
@@ -100,7 +115,7 @@ export default function Recipes() {
             value={cookTime}
             onChange={(_, valueAsNumber) => setCookTime(valueAsNumber)}
           >
-            <NumberInputField />
+            <NumberInputField placeholder="Set total cook time" />
             <NumberInputStepper>
               <NumberIncrementStepper />
               <NumberDecrementStepper />
@@ -109,22 +124,22 @@ export default function Recipes() {
         </Box>
       </Grid>
 
-      <Grid templateColumns="repeat(3, 1fr)" gap={10} m={10}>
+      <Grid templateColumns="repeat(3, 1fr)" gap={10} m={10} p={10}>
         {recipes?.map((recipe, index) => (
-          <Box
-            key={index}
-            onClick={() => history.push(`/recipe/${recipe.name}`)}
-            h="95vh"
-            transition=".3s"
-            boxShadow="rgba(0, 0, 0, 0.1) 0px 4px 12px"
-            _hover={{ transform: "scale(1.03)" }}
-          >
-            {recipe.name}
-          </Box>
+          <RecipeTile recipe={recipe} key={index} />
         ))}
-        {isFetching && page < pageCount && "Fetching more list items..."}
-        {page === pageCount && "That's it!"}
       </Grid>
+      {isFetching && page < pageCount && (
+        <Flex justifyContent="center">
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="red.600"
+            size="xl"
+          />
+        </Flex>
+      )}
     </>
   );
 }
