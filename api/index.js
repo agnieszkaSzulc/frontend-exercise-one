@@ -42,9 +42,9 @@ app.get("/recipes", (req, res) => {
   let result = recipes;
   if (req.query.ingredients) {
     result = result.filter(recipe =>
-      recipe.ingredients
-        .map(i => i.name)
-        .some(i => req.query.ingredients.includes(i))
+      req.query.ingredients.every(i =>
+        recipe.ingredients.map(i => i.name).includes(i)
+      )
     );
   }
   if (req.query.ingredientTypes) {
@@ -79,8 +79,8 @@ app.get("/recipes", (req, res) => {
   });
 });
 
-app.get("/recipes/:id", (req, res) => {
-  res.json(recipes.find(recipe => recipe.name === req.params.id));
+app.get("/recipe/:name", (req, res) => {
+  res.json(recipes.find(recipe => recipe.name === req.params.name));
 });
 
 app.listen(4000, () => {
