@@ -1,5 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
+import * as PropTypes from "prop-types";
 import {
   Box,
   Flex,
@@ -100,3 +101,19 @@ export default function RecipeTile({ recipe }) {
     </Flex>
   );
 }
+
+RecipeTile.propTypes = {
+  recipe: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    imageURL: PropTypes.string.isRequired,
+    timers: PropTypes.arrayOf(PropTypes.number).isRequired,
+    ingredients: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string.isRequired,
+        type: PropTypes.string,
+        quantity: PropTypes.string
+      })
+    ),
+    originalURL: PropTypes.string
+  })
+};
